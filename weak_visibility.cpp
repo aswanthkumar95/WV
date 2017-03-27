@@ -188,12 +188,13 @@ int main() {
      q2 = p[(quer2-3)%n];
   }
   Line_2 lin1(r,m);
-  //std::cout << r << " " << q << " " << m << std::endl;
+  std::cout << r << " " << q << " " << m << std::endl;
   int side = lin1.has_on_positive_side(q2);
   std::cout << side << std::endl ;
   it = Maps2.find(q);
   std::cout << it->first << "=>" << it->second << std::endl; 
   while(it != Maps2.end()) {
+  std::cout << it->first << "=>" << it->second << std::endl;
     if(it->first == it->second){
       Maps2.erase(it);
       it = Maps2.find(q);
@@ -202,8 +203,7 @@ int main() {
     if(itr == Maps2.end()){
       Maps2.erase(it);
       it = Maps2.find(q);
-    }
-    else{
+    } else{
       //std::cout << it->first << " wins  " << it->second << std::endl;
       Line_2 lin2(it->first, it->second);
       q1 = it->second;
@@ -224,13 +224,14 @@ int main() {
   Maps2.erase(itr);
   itr = Maps2.find(it->second);
   while(itr != Maps2.end()) {
+    std::cout << creo1 << " ap " << creo2 << std::endl;
     Line_2 lins(creo1,creo2);
-    if(lins.has_on_positive_side(itr->second) == side){
+    if(lins.has_on_positive_side(itr->second) == side) {
         tmpt = itr->second;
         creo1 = itr->first, creo2 = itr->second;
     }
-      Maps2.erase(itr);
-      itr = Maps2.find(it->second);     
+    Maps2.erase(itr);
+    itr = Maps2.find(it->second);     
   }
   std::cout << "new line pt: "<< tmpt << std::endl;
   Point_2 tmpt2;
