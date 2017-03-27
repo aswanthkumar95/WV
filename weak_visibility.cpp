@@ -48,8 +48,12 @@ int main() {
     p[(i+1)%n] = p2;
     segments.push_back(Segment_2(p[i],p[(i+1)%n]));
   }
- 
-  Polygon_2 outers(outer); 
+  int edg,edge;
+  std::cin >> edge;
+  edg = edge;
+  Polygon_2 outers(outer),poly[2*edg];
+  Polygon_with_holes_2 unionR;
+  while(edg--){
   int quer,sd=2;
   while(sd--){
   std::map<Point_2,Point_2> Maps;
@@ -169,17 +173,27 @@ int main() {
     std::cout << it->first << " <= " << p[it->second] << '\n';
   std::cout << "Done2." <<std::endl;
   std::multimap<Point_2,Point_2>::iterator it,itr;
-  Point_2 r,q,m;
-  if(sd){ r = p[(quer+1)%n]; q = p[quer]; m = p[(quer+2)%n]; }
-  else{ int quer1 = quer+n; r = p[(quer1-1)%n]; q = p[quer]; m = p[(quer1-2)%n]; }
-  Line_2 lin1(q,r);
-  std::cout << r << " " << q << " " << m << std::endl;
-  int side = lin1.has_on_positive_side(m);
+  Point_2 r,q,m,q1,q2;
+  if(sd) {
+     r = p[(quer+1)%n];
+     q = p[quer];
+     m = p[(quer+2)%n]; 
+     q2 = p[(quer+3)%n];
+    }
+  else {
+     int quer2 = quer + n;
+     r = p[(quer2-1)%n];
+     q = p[quer];
+     m = p[(quer2-2)%n]; 
+     q2 = p[(quer2-3)%n];
+  }
+  Line_2 lin1(r,m);
+  //std::cout << r << " " << q << " " << m << std::endl;
+  int side = lin1.has_on_positive_side(q2);
   std::cout << side << std::endl ;
   it = Maps2.find(q);
   std::cout << it->first << "=>" << it->second << std::endl; 
   while(it != Maps2.end()) {
-  std::cout << it->first << "=>" << it->second << std::endl; 
     if(it->first == it->second){
       Maps2.erase(it);
       it = Maps2.find(q);
@@ -188,9 +202,11 @@ int main() {
     if(itr == Maps2.end()){
       Maps2.erase(it);
       it = Maps2.find(q);
-    } else{
+    }
+    else{
+      //std::cout << it->first << " wins  " << it->second << std::endl;
       Line_2 lin2(it->first, it->second);
-      Point_2 q1 = it->second;
+      q1 = it->second;
       if(side){
         if(lin2.has_on_positive_side(itr->second)) it = Maps2.find(q1);
         else break;
@@ -208,14 +224,13 @@ int main() {
   Maps2.erase(itr);
   itr = Maps2.find(it->second);
   while(itr != Maps2.end()) {
-  std::cout << creo1 << " ap " << creo2 << std::endl;
     Line_2 lins(creo1,creo2);
-    if(lins.has_on_positive_side(itr->second) == side) {
+    if(lins.has_on_positive_side(itr->second) == side){
         tmpt = itr->second;
         creo1 = itr->first, creo2 = itr->second;
     }
-        Maps2.erase(itr);
-        itr = Maps2.find(it->second);     
+      Maps2.erase(itr);
+      itr = Maps2.find(it->second);     
   }
   std::cout << "new line pt: "<< tmpt << std::endl;
   Point_2 tmpt2;
@@ -232,6 +247,71 @@ int main() {
   itrsc = CGAL::intersection(lin2,new_lin);
   const Point_2* intrsctn = boost::get<Point_2>(&*itrsc);
   std::cout << "req new point of intersection: " << *intrsctn << std::endl;
+  int qwer1 = 0, sd2 = edg*2+sd, quer1 = quer;
+  std::cout << tmpt << " " << it->second << std::endl;
+  Point_2 pnt, pnt2;
+  for(pnt = p[quer1]; pnt != tmpt; ++quer1){
+    pnt = p[quer1%n];
+    std::cout << "add " << pnt << std::endl;
+    poly[sd2].push_back(pnt);
+  }
+  poly[sd2].push_back(*intrsctn);
+  std::cout << "viw " << pnt << std::endl;
+  if(pnt == tmpt) pnt2 = it->second;
+  else pnt2 = tmpt;
+  quer1 = quer;
+  for(pnt = p[(quer1-1)%n]; pnt != pnt2; --quer1){
+    pnt = p[quer1%n];
+  }
+  for(pnt = p[(quer1+1)%n]; pnt != p[(quer-1)%n]; ++quer1){
+    pnt = p[quer1%n];
+    poly[sd2].push_back(pnt);
+  }
+  //for(Vertex_iterator vits = outers.vertices_begin(); vits != outers.vertices_end(); ++vits){
+  //  if(*vits == tmpt2 || *vits == it->second){
+  //    poly[sd2].push_back(*vits);
+  //    if(!qwer1) {
+  //      poly[sd2].push_back(*intrsctn);
+  //      qwer1 = 1;
+  //    } else qwer1 = 0;
+  //  }
+  //  else{
+  //    if(!qwer1) poly[sd2].push_back(*vits);
+  //  }
+  //}
+  for(Vertex_iterator vits = poly[sd2].vertices_begin(); vits != poly[sd2].vertices_end(); ++vits){
+    std::cout << *vits << " plo " << edg*2+sd << std::endl;
+  }
+  }
+  Polygon_with_holes_2 wk_vis_poly;
+  Pwh_list_2                  intR;
+  Pwh_list_2::const_iterator  it5;
+  CGAL::intersection (poly[edg*2], poly[edg*2+1], std::back_inserter(intR));
+  std::cout << "The intersection:" << std::endl;
+  for (it5 = intR.begin(); it5 != intR.end(); ++it5) {
+    std::cout << "--> ";
+    print_polygon_with_holes (*it5);
+    std::cout << "union poly: " << std::endl;
+    if(edg == edge-1){ if(CGAL::join(*it5,*it5,unionR)){
+      print_polygon_with_holes(unionR);
+    }}else{if(CGAL::join(unionR,*it5,unionR)){
+      print_polygon_with_holes(unionR);
+    }}
+  }
+  }
+  Pwh_list_2 symmR;
+  Pwh_list_2::const_iterator it9;
+  CGAL::symmetric_difference (outers, unionR, std::back_inserter(symmR));
+  if(symmR.size() == 0){
+    std::cout<<"Edge Guard set holds"<<std::endl;
+  }
+  else{
+    std::cout << "\n\nThe symmetric difference:" << std::endl;
+    for (it9 = symmR.begin(); it9 != symmR.end(); ++it9) {
+      std::cout << "--> ";
+      print_polygon_with_holes (*it9);
+    }
+    std::cout<<"Edge Guard set is invalid"<<std::endl;
   }
   return 0;
 }
